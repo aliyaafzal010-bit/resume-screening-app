@@ -9,50 +9,30 @@ from sklearn.metrics.pairwise import cosine_similarity
 # -------------------------------
 # PAGE CONFIG
 # -------------------------------
-st.set_page_config(page_title="AI Resume Screener", page_icon="📄", layout="centered")
+st.set_page_config(page_title="AI Resume Analyzer", layout="wide")
 
 # -------------------------------
-# CUSTOM CSS (UI DESIGN 🔥)
+# CUSTOM CSS (PRO UI 🔥)
 # -------------------------------
 st.markdown("""
 <style>
+body {
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+}
 .main {
-    background-color: #f5f7fa;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 15px;
 }
-h1 {
-    color: #2c3e50;
-    text-align: center;
-}
-.stButton>button {
-    background-color: #4CAF50;
-    color: white;
-    border-radius: 10px;
-    padding: 10px 20px;
-}
-.result-box {
-    background-color: white;
+.card {
+    background: white;
     padding: 15px;
-    border-radius: 10px;
-    box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
-    margin-top: 10px;
+    border-radius: 12px;
+    box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
+    margin-bottom: 10px;
 }
 </style>
 """, unsafe_allow_html=True)
-
-# -------------------------------
-# HEADER
-# -------------------------------
-st.title("📄 AI Resume Screening System")
-st.markdown("### 🚀 Smart Resume Analyzer using AI")
-
-# -------------------------------
-# INPUT SECTION
-# -------------------------------
-st.markdown("## 📤 Upload Resume")
-uploaded_file = st.file_uploader("", type=["pdf", "docx"])
-
-st.markdown("## 📝 Job Description")
-job_description = st.text_area("Paste Job Description Here")
 
 # -------------------------------
 # FUNCTIONS
@@ -88,43 +68,111 @@ def calculate_similarity(resume, jd):
     return cosine_similarity(vectors[0:1], vectors[1:2])[0][0]
 
 # -------------------------------
-# BUTTON
+# SESSION STATE
 # -------------------------------
-if st.button("🔍 Analyze Resume"):
+if "page" not in st.session_state:
+    st.session_state.page = "home"
 
-    if uploaded_file and job_description:
+# -------------------------------
+# HOME PAGE
+# -------------------------------
+if st.session_state.page == "home":
 
-        text = extract_text(uploaded_file)
+    st.title("🚀 AI Resume Screening System")
+    st.markdown("### ✨ Smart AI Tool for Resume Analysis")
 
-        email = extract_email(text)
-        phone = extract_phone(text)
-        skills = extract_skills(text)
+    st.write("""
+    This application helps HR teams and recruiters analyze resumes automatically.
+    
+    🔹 Upload your resume  
+    🔹 Enter job description  
+    🔹 Get AI-based match score  
+    🔹 Get improvement suggestions  
+    """)
 
-        similarity = calculate_similarity(text, job_description)
+    uploaded_file = st.file_uploader("📄 Upload Resume", type=["pdf","docx"])
+    job_description = st.text_area("📝 Enter Job Description")
 
-        jd_skills = extract_skills(job_description)
-        skill_score = len(set(skills) & set(jd_skills)) / max(len(jd_skills),1)
+    if st.button("➡️ Analyze Resume"):
 
-        final_score = (0.7 * similarity) + (0.3 * skill_score)
+        if uploaded_file and job_description:
 
-        # -------------------------------
-        # OUTPUT (CARDS STYLE 🔥)
-        # -------------------------------
-        st.markdown("## 📊 Results")
+            text = extract_text(uploaded_file)
 
-        st.markdown(f"<div class='result-box'><b>📧 Email:</b> {email}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='result-box'><b>📱 Phone:</b> {phone}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='result-box'><b>🧠 Skills:</b> {skills}</div>", unsafe_allow_html=True)
+            st.session_state.data = {
+                "text": text,
+                "jd": job_description
+            }
 
-        st.markdown(f"<div class='result-box'><b>📊 Similarity Score:</b> {round(similarity,2)}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='result-box'><b>🧩 Skill Match:</b> {round(skill_score,2)}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='result-box'><b>⭐ Final Score:</b> {round(final_score,2)}</div>", unsafe_allow_html=True)
+            st.session_state.page = "analysis"
+            st.rerun()
 
-        if final_score > 0.6:
-            st.success("✅ Strong Candidate")
         else:
-            st.error("❌ Not a Good Match")
+            st.warning("⚠️ Please upload resume and enter job description")
 
+# -------------------------------
+# ANALYSIS PAGE
+# -------------------------------
+elif st.session_state.page == "analysis":
+
+    st.title("📊 Resume Analysis Report")
+
+    text = st.session_state.data["text"]
+    jd = st.session_state.data["jd"]
+
+    email = extract_email(text)
+    phone = extract_phone(text)
+    skills = extract_skills(text)
+
+    similarity = calculate_similarity(text, jd)
+
+    jd_skills = extract_skills(jd)
+    skill_score = len(set(skills) & set(jd_skills)) / max(len(jd_skills),1)
+
+    final_score = (0.7 * similarity) + (0.3 * skill_score)
+
+    # -------------------------------
+    # DISPLAY DATA
+    # -------------------------------
+    st.markdown("### 📌 Extracted Information")
+
+    st.markdown(f"<div class='card'>📧 Email: {email}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='card'>📱 Phone: {phone}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='card'>🧠 Skills: {skills}</div>", unsafe_allow_html=True)
+
+    st.markdown("### 📈 Analysis Scores")
+
+    st.markdown(f"<div class='card'>📊 Similarity Score: {round(similarity,2)}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='card'>🧩 Skill Match: {round(skill_score,2)}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='card'>⭐ Final Score: {round(final_score,2)}</div>", unsafe_allow_html=True)
+
+    # -------------------------------
+    # RESULT DECISION
+    # -------------------------------
+    st.markdown("### 🎯 Final Decision")
+
+    if final_score > 0.7:
+        st.success("✅ Excellent Match - Candidate is highly suitable!")
+    elif final_score > 0.5:
+        st.warning("⚠️ Moderate Match - Candidate can improve")
     else:
-        st.warning("⚠️ Please upload resume and enter job description")
+        st.error("❌ Poor Match - Needs significant improvement")
+
+    # -------------------------------
+    # IMPROVEMENT SUGGESTIONS
+    # -------------------------------
+    st.markdown("### 💡 Improvement Suggestions")
+
+    missing_skills = list(set(jd_skills) - set(skills))
+
+    if missing_skills:
+        st.write("🔧 Add these skills to improve your resume:")
+        st.write(missing_skills)
+    else:
+        st.write("🎉 Your resume matches well with the job!")
+
+    # Back button
+    if st.button("⬅️ Back to Home"):
+        st.session_state.page = "home"
+        st.rerun()
  
