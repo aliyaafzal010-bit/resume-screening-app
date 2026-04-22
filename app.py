@@ -2,6 +2,7 @@ import streamlit as st
 import pdfplumber
 import docx2txt
 import re
+import matplotlib.pyplot as plt
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -12,59 +13,48 @@ from sklearn.metrics.pairwise import cosine_similarity
 st.set_page_config(page_title="AI Resume Analyzer", layout="wide")
 
 # -------------------------------
-# GLASSMORPHISM UI CSS 🔥
+# ADVANCED UI CSS + ANIMATION
 # -------------------------------
 st.markdown("""
 <style>
 
-/* Gradient Background */
+/* Background */
 .stApp {
-    background: linear-gradient(135deg, #c7d2fe, #bbf7d0);
+    background: linear-gradient(135deg, #dbeafe, #dcfce7);
+}
+
+/* Fade animation */
+.fade-in {
+    animation: fadeIn 1.2s ease-in;
+}
+@keyframes fadeIn {
+    from {opacity: 0;}
+    to {opacity: 1;}
 }
 
 /* Glass Card */
 .glass {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(12px);
     border-radius: 15px;
     padding: 20px;
-    margin-bottom: 15px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-    color: black;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    margin-top: 10px;
 }
 
-/* Input Fix */
+/* Inputs */
 input, textarea {
     background-color: white !important;
     color: black !important;
-    border-radius: 10px !important;
-}
-
-/* File uploader */
-[data-testid="stFileUploader"] {
-    background-color: white !important;
-    border-radius: 10px;
-    padding: 10px;
-}
-
-/* Textarea */
-[data-testid="stTextArea"] textarea {
-    background-color: white !important;
-    color: black !important;
-}
-
-/* Headings */
-h1, h2, h3 {
-    color: #1e293b !important;
+    border-radius: 8px !important;
 }
 
 /* Button */
 .stButton>button {
-    background: linear-gradient(to right, #2563eb, #22c55e);
+    background: linear-gradient(to right, #22c55e, #3b82f6);
     color: white;
-    border-radius: 12px;
-    padding: 10px 20px;
+    padding: 10px 25px;
+    border-radius: 10px;
     font-weight: bold;
     border: none;
 }
@@ -116,24 +106,47 @@ if "page" not in st.session_state:
 # -------------------------------
 if st.session_state.page == "home":
 
-    st.title("💎 AI Resume Screening System")
-    st.markdown("### 🚀 Smart AI-powered Resume Analyzer")
+    col1, col2 = st.columns([1.2, 1])
 
-    st.markdown("""
-    <div class="glass">
-    📌 Upload your resume<br>
-    📌 Paste job description<br>
-    📌 Get AI-based analysis & score<br>
-    📌 Improve your resume easily
-    </div>
-    """, unsafe_allow_html=True)
+    with col1:
+        st.markdown("""
+        <div class="fade-in">
+        <h1 style='font-size:48px;'>Build a Better Resume 🚀</h1>
+        <p style='font-size:18px; color:#374151;'>
+        Upload your resume and compare it with job descriptions using AI.
+        Get instant feedback, match score, and improvement suggestions.
+        </p>
+        </div>
+        """, unsafe_allow_html=True)
 
-    uploaded_file = st.file_uploader("📄 Upload Resume", type=["pdf","docx"])
-    job_description = st.text_area("📝 Enter Job Description")
+        st.markdown("""
+        <div class="glass fade-in">
+        📌 AI-based Resume Analysis<br>
+        📌 Skill Matching & Score<br>
+        📌 Improvement Suggestions
+        </div>
+        """, unsafe_allow_html=True)
 
-    if st.button("🔍 Analyze Resume"):
+    with col2:
+        st.markdown("""
+        <div class="glass fade-in">
+        <h3>📊 Sample Score</h3>
+        <h1 style="color:#22c55e;">82%</h1>
+        ✔ Good Skills Match <br>
+        ✔ Strong Keywords <br>
+        ❗ Improve Formatting
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    st.markdown("### 📤 Upload Your Resume")
+
+    uploaded_file = st.file_uploader("", type=["pdf","docx"])
+    job_description = st.text_area("📝 Paste Job Description")
+
+    if st.button("🚀 Analyze Now"):
         if uploaded_file and job_description:
-
             text = extract_text(uploaded_file)
 
             st.session_state.data = {
@@ -151,6 +164,8 @@ if st.session_state.page == "home":
 # -------------------------------
 elif st.session_state.page == "analysis":
 
+    st.markdown("<div class='fade-in'>", unsafe_allow_html=True)
+
     st.title("📊 Resume Analysis Dashboard")
 
     text = st.session_state.data["text"]
@@ -161,49 +176,55 @@ elif st.session_state.page == "analysis":
     skills = extract_skills(text)
 
     similarity = calculate_similarity(text, jd)
-
     jd_skills = extract_skills(jd)
     skill_score = len(set(skills) & set(jd_skills)) / max(len(jd_skills),1)
 
     final_score = (0.7 * similarity) + (0.3 * skill_score)
 
     # Extracted Info
-    st.markdown("### 📌 Extracted Information")
-    st.markdown(f"<div class='glass'>📧 Email: {email}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='glass'>📱 Phone: {phone}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='glass'>🧠 Skills: {skills}</div>", unsafe_allow_html=True)
+    st.subheader("📌 Extracted Information")
+    st.markdown(f"<div class='glass'>📧 {email}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='glass'>📱 {phone}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='glass'>🧠 {skills}</div>", unsafe_allow_html=True)
 
-    # Scores
-    st.markdown("### 📈 Analysis Scores")
-    st.markdown(f"<div class='glass'>📊 Similarity Score: {round(similarity,2)}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='glass'>🧩 Skill Match: {round(skill_score,2)}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='glass'>⭐ Final Score: {round(final_score,2)}</div>", unsafe_allow_html=True)
+    # Graph
+    st.subheader("📊 Score Visualization")
 
+    labels = ['Similarity', 'Skill Match', 'Final']
+    values = [similarity, skill_score, final_score]
+
+    fig, ax = plt.subplots()
+    ax.bar(labels, values)
+    st.pyplot(fig)
+
+    # Progress
+    st.subheader("📈 Overall Score")
     st.progress(float(final_score))
 
     # Decision
-    st.markdown("### 🎯 Final Decision")
+    st.subheader("🎯 Final Decision")
     if final_score > 0.7:
-        st.success("✅ Excellent Match - Highly Suitable Candidate")
+        st.success("✅ Excellent Match")
     elif final_score > 0.5:
-        st.warning("⚠️ Moderate Match - Needs Improvement")
+        st.warning("⚠️ Moderate Match")
     else:
-        st.error("❌ Poor Match - Improve Skills")
+        st.error("❌ Needs Improvement")
 
     # Suggestions
-    st.markdown("### 💡 Improvement Suggestions")
+    st.subheader("💡 Suggestions")
     missing_skills = list(set(jd_skills) - set(skills))
 
     if missing_skills:
         st.markdown(
-            "<div class='glass'><b>🔧 Missing Skills:</b><br>" + ", ".join(missing_skills) + "</div>",
+            "<div class='glass'><b>Missing Skills:</b><br>" + ", ".join(missing_skills) + "</div>",
             unsafe_allow_html=True
         )
     else:
-        st.success("🎉 Your resume matches well!")
+        st.success("🎉 Great Match!")
 
-    # Back button
-    if st.button("⬅️ Back to Home"):
+    if st.button("⬅️ Back"):
         st.session_state.page = "home"
         st.rerun()
+
+    st.markdown("</div>", unsafe_allow_html=True)
  
