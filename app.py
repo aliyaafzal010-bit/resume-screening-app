@@ -9,7 +9,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # -------------------------------
-# spaCy MODEL LOAD (FIXED FOR CLOUD)
+# spaCy MODEL LOAD (AUTO DOWNLOAD FIX)
 # -------------------------------
 try:
     nlp = spacy.load("en_core_web_sm")
@@ -18,7 +18,7 @@ except:
     nlp = spacy.load("en_core_web_sm")
 
 # -------------------------------
-# Extract Text
+# Extract Text from Resume
 # -------------------------------
 def extract_text(file):
     text = ""
@@ -41,7 +41,7 @@ def extract_email(text):
     return re.findall(r'\S+@\S+', text)
 
 def extract_phone(text):
-    return re.findall(r'\d{10}', text)
+    return re.findall(r'\b\d{10}\b', text)
 
 
 # -------------------------------
@@ -54,11 +54,17 @@ skills_db = [
 
 def extract_skills(text):
     text = text.lower()
-    return [skill for skill in skills_db if skill in text]
+    found_skills = []
+    
+    for skill in skills_db:
+        if skill in text:
+            found_skills.append(skill)
+    
+    return list(set(found_skills))
 
 
 # -------------------------------
-# Similarity Calculation
+# Similarity Calculation (AI PART)
 # -------------------------------
 def calculate_similarity(resume, jd):
     tfidf = TfidfVectorizer()
@@ -73,7 +79,7 @@ def calculate_similarity(resume, jd):
 st.set_page_config(page_title="AI Resume Screener", layout="centered")
 
 st.title("📄 AI Resume Screening System")
-st.write("Upload your resume and compare with job description")
+st.write("Upload your resume and compare it with a job description")
 
 uploaded_file = st.file_uploader("Upload Resume", type=["pdf", "docx"])
 job_description = st.text_area("Enter Job Description")
@@ -82,19 +88,27 @@ if st.button("Analyze Resume"):
     
     if uploaded_file is not None and job_description.strip() != "":
         
+        # Extract text
         text = extract_text(uploaded_file)
         
+        # Extract details
         email = extract_email(text)
         phone = extract_phone(text)
         skills = extract_skills(text)
         
+        # Similarity score
         similarity = calculate_similarity(text, job_description)
         
+        # Skill matching score
         jd_skills = extract_skills(job_description)
         skill_score = len(set(skills) & set(jd_skills)) / max(len(jd_skills), 1)
         
+        # Final score
         final_score = (0.7 * similarity) + (0.3 * skill_score)
         
+        # -------------------------------
+        # OUTPUT
+        # -------------------------------
         st.subheader("🔍 Results")
         
         st.write("📧 Email:", email)
