@@ -2,59 +2,110 @@ import streamlit as st
 import pdfplumber
 import docx2txt
 import re
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+# -------------------------------
+
+# PAGE CONFIG
+# -------------------------------
 st.set_page_config(page_title="AI Resume Analyzer", layout="wide")
 
 # -------------------------------
-# 🎨 CLEAN MODERN UI
+# GLASSMORPHISM UI CSS 🔥
 # -------------------------------
 st.markdown("""
 <style>
-
-/* Background */
+/* Background Gradient */
 .stApp {
-    background: linear-gradient(135deg, #e0e7ff, #f0fdf4);
+    background: linear-gradient(135deg, #eef2ff, #d1fae5);
 }
 
-/* Main card */
-.card {
-    background: white;
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    margin-bottom: 15px;
-}
-
-/* Score card */
-.score {
-    font-size: 48px;
-    font-weight: bold;
-    text-align: center;
-    color: #4f46e5;
+/* Global Text */
+body, p, span, div, label {
+    color: #1f2937 !important;
 }
 
 /* Headings */
-h1, h2, h3 {
+h1, h2, h3, h4 {
     color: #111827 !important;
+}
+
+/* Title */
+[data-testid="stTitle"] {
+    color: #111827 !important;
+}
+
+/* Subheader */
+[data-testid="stSubheader"] {
+    color: #374151 !important;
+}
+
+/* Glass Card */
+.glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    color: #1f2937 !important;
+}
+
+/* Inputs */
+input, textarea {
+    background-color: white !important;
+    color: black !important;
+    border-radius: 10px !important;
+    border: 1px solid #d1d5db;
+}
+
+/* Textarea fix */
+[data-testid="stTextArea"] textarea {
+    color: black !important;
+}
+
+/* File uploader (perfect fix) */
+[data-testid="stFileUploader"] {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    border-radius: 12px;
+    padding: 12px;
+}
+
+/* File uploader text */
+[data-testid="stFileUploader"] * {
+    color: white !important;
 }
 
 /* Button */
 .stButton>button {
-    background: #4f46e5;
+    background: linear-gradient(to right, #4f46e5, #22c55e);
     color: white;
-    border-radius: 10px;
+    border-radius: 12px;
+    padding: 10px 20px;
+    font-weight: 600;
+    border: none;
 }
 
-/* File uploader fix */
-[data-testid="stFileUploader"] {
-    background: #111827;
-    padding: 10px;
-    border-radius: 10px;
+/* Button hover */
+.stButton>button:hover {
+    opacity: 0.9;
 }
-[data-testid="stFileUploader"] * {
-    color: white !important;
+
+/* Progress bar */
+.stProgress > div > div > div {
+    background: linear-gradient(to right, #4f46e5, #22c55e);
+}
+
+/* Alerts */
+.stSuccess {
+    background-color: #dcfce7;
+}
+.stWarning {
+    background-color: #fef9c3;
+}
+.stError {
+    background-color: #fee2e2;
 }
 
 </style>
@@ -73,10 +124,20 @@ def extract_text(file):
         text = docx2txt.process(file)
     return text
 
+def extract_email(text):
+    return re.findall(r'\S+@\S+', text)
+
+def extract_phone(text):
+    return re.findall(r'\b\d{10}\b', text)
+
+skills_db = [
+    "python","java","sql","machine learning","ai",
+    "data science","deep learning","html","css","javascript"
+]
+
 def extract_skills(text):
-    skills_db = ["python","java","sql","machine learning","ai","data science","html","css"]
     text = text.lower()
-    return [s for s in skills_db if s in text]
+    return [skill for skill in skills_db if skill in text]
 
 def calculate_similarity(resume, jd):
     tfidf = TfidfVectorizer()
@@ -84,73 +145,112 @@ def calculate_similarity(resume, jd):
     return cosine_similarity(vectors[0:1], vectors[1:2])[0][0]
 
 # -------------------------------
-# SESSION
+# SESSION STATE
 # -------------------------------
 if "page" not in st.session_state:
     st.session_state.page = "home"
 
 # -------------------------------
-# HOME
+# HOME PAGE
 # -------------------------------
 if st.session_state.page == "home":
 
-    st.title("💎 AI Resume Analyzer")
+    st.title("💎 AI Resume Screening System")
+    st.markdown("### 🚀 Smart AI-powered Resume Analyzer")
 
-    st.markdown('<div class="card">Upload your resume and get instant ATS score</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="glass">
+    📌 Upload your resume<br>
+    📌 Paste job description<br>
+    📌 Get AI-based analysis & score<br>
+    📌 Improve your resume easily
+    </div>
+    """, unsafe_allow_html=True)
 
-    file = st.file_uploader("Upload Resume", type=["pdf","docx"])
-    jd = st.text_area("Paste Job Description")
+    uploaded_file = st.file_uploader("📄 Upload Resume", type=["pdf","docx"])
+    job_description = st.text_area("📝 Enter Job Description")
 
-    if st.button("Analyze"):
-        if file and jd:
-            text = extract_text(file)
-            st.session_state.data = {"text": text, "jd": jd}
+    if st.button("🔍 Analyze Resume"):
+        if uploaded_file and job_description:
+
+            text = extract_text(uploaded_file)
+
+            st.session_state.data = {
+                "text": text,
+                "jd": job_description
+            }
+
             st.session_state.page = "analysis"
             st.rerun()
         else:
-            st.warning("Upload file and enter JD")
+            st.warning("⚠️ Please upload resume and enter job description")
 
 # -------------------------------
-# ANALYSIS
+# ANALYSIS PAGE
 # -------------------------------
-else:
+elif st.session_state.page == "analysis":
+
+    st.title("📊 Resume Analysis Dashboard")
 
     text = st.session_state.data["text"]
     jd = st.session_state.data["jd"]
 
+    email = extract_email(text)
+    phone = extract_phone(text)
     skills = extract_skills(text)
-    jd_skills = extract_skills(jd)
 
     similarity = calculate_similarity(text, jd)
+
+    jd_skills = extract_skills(jd)
     skill_score = len(set(skills) & set(jd_skills)) / max(len(jd_skills),1)
-    final_score = round((0.7 * similarity) + (0.3 * skill_score), 2)
 
-    st.title("📊 Analysis Dashboard")
+    final_score = (0.7 * similarity) + (0.3 * skill_score)
 
-    # 🎯 SCORE (MAIN FOCUS)
-    st.markdown(f'<div class="card"><div class="score">{int(final_score*100)}%</div><center>ATS Match Score</center></div>', unsafe_allow_html=True)
+    # Extracted Info
+    st.markdown("### 📌 Extracted Information")
+    st.markdown(f"<div class='glass'>📧 Email: {email}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='glass'>📱 Phone: {phone}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='glass'>🧠 Skills: {skills}</div>", unsafe_allow_html=True)
 
-    # 📌 Skills
-    col1, col2 = st.columns(2)
+    # Scores
+    st.markdown("### 📈 Analysis Scores")
+    st.markdown(f"<div class='glass'>📊 Similarity Score: {round(similarity,2)}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='glass'>🧩 Skill Match: {round(skill_score,2)}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='glass'>⭐ Final Score: {round(final_score,2)}</div>", unsafe_allow_html=True)
 
-    with col1:
-        st.markdown('<div class="card"><b>Your Skills</b><br>' + ", ".join(skills) + '</div>', unsafe_allow_html=True)
+    st.progress(float(final_score))
 
-    with col2:
-        missing = list(set(jd_skills) - set(skills))
-        st.markdown('<div class="card"><b>Missing Skills</b><br>' + ", ".join(missing) + '</div>', unsafe_allow_html=True)
-
-    # 🎯 Decision
-    st.markdown('<div class="card">', unsafe_allow_html=True)
+    # Decision
+    st.markdown("### 🎯 Final Decision")
     if final_score > 0.7:
-        st.success("Excellent Match 🎉")
+        st.success("✅ Excellent Match - Highly Suitable Candidate")
     elif final_score > 0.5:
-        st.warning("Moderate Match ⚠️")
+        st.warning("⚠️ Moderate Match - Needs Improvement")
     else:
-        st.error("Low Match ❌")
-    st.markdown('</div>', unsafe_allow_html=True)
+        st.error("❌ Poor Match - Improve Skills")
 
-    # Back
-    if st.button("⬅ Back"):
+    # 🤖 Smart Suggestions
+    st.subheader("🤖 Suggestions")
+
+    missing_skills = list(set(jd_skills) - set(skills))
+
+    if missing_skills:
+        st.write("🔧 Improve these skills:", missing_skills)
+
+    if similarity < 0.5:
+        st.write("📄 Your resume content is not aligned with job description. Add relevant keywords.")
+
+    if not email:
+        st.write("📧 Add professional email")
+
+    if not phone:
+        st.write("📱 Add phone number")
+
+    if final_score > 0.7:
+        st.success("Your resume is strong 💪")
+    # Back button
+    if st.button("⬅️ Back to Home"):
         st.session_state.page = "home"
-        st.rerun()
+        st.rerun() 
+
+
