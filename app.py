@@ -12,86 +12,100 @@ from sklearn.metrics.pairwise import cosine_similarity
 st.set_page_config(page_title="AI Resume Analyzer", layout="wide")
 
 # -------------------------------
-# GLASSMORPHISM UI CSS (FIXED)
+# MODERN PROFESSIONAL THEME 🎨
 # -------------------------------
 st.markdown("""
 <style>
 
-/* Gradient Background */
+/* Background Gradient */
 .stApp {
-    background: linear-gradient(135deg, #c7d2fe, #bbf7d0);
+    background: linear-gradient(135deg, #eef2ff, #d1fae5);
 }
 
-/* Glass Card */
-.glass {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 15px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-    color: #111827 !important;
-}
-
-/* FIX ALL TEXT VISIBILITY */
+/* Global Text */
 body, p, span, div, label {
-    color: #111827 !important;
-}
-
-/* Streamlit text fix */
-[data-testid="stMarkdownContainer"] {
-    color: #111827 !important;
+    color: #1f2937 !important;
 }
 
 /* Headings */
 h1, h2, h3, h4 {
-    color: #0f172a !important;
+    color: #111827 !important;
 }
 
 /* Title */
 [data-testid="stTitle"] {
-    color: #0f172a !important;
+    color: #111827 !important;
 }
 
 /* Subheader */
 [data-testid="stSubheader"] {
-    color: #1e293b !important;
+    color: #374151 !important;
 }
 
-/* Input Fields */
+/* Glass Card */
+.glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    color: #1f2937 !important;
+}
+
+/* Inputs */
 input, textarea {
     background-color: white !important;
     color: black !important;
     border-radius: 10px !important;
+    border: 1px solid #d1d5db;
+}
+
+/* Textarea fix */
+[data-testid="stTextArea"] textarea {
+    color: black !important;
 }
 
 /* File uploader */
 [data-testid="stFileUploader"] {
-    background-color: white !important;
-    border-radius: 10px;
-    padding: 10px;
+    background: linear-gradient(135deg, #1e293b, #334155);
+    border-radius: 12px;
+    padding: 12px;
 }
 
-/* Textarea */
-[data-testid="stTextArea"] textarea {
-    background-color: white !important;
-    color: black !important;
+/* File uploader text fix */
+[data-testid="stFileUploader"] * {
+    color: white !important;
 }
 
 /* Button */
 .stButton>button {
-    background: linear-gradient(to right, #2563eb, #22c55e);
+    background: linear-gradient(to right, #4f46e5, #22c55e);
     color: white;
     border-radius: 12px;
     padding: 10px 20px;
-    font-weight: bold;
+    font-weight: 600;
     border: none;
+}
+
+/* Button hover */
+.stButton>button:hover {
+    opacity: 0.9;
 }
 
 /* Progress bar */
 .stProgress > div > div > div {
-    background-color: #22c55e;
+    background: linear-gradient(to right, #4f46e5, #22c55e);
+}
+
+/* Alerts */
+.stSuccess {
+    background-color: #dcfce7;
+}
+.stWarning {
+    background-color: #fef9c3;
+}
+.stError {
+    background-color: #fee2e2;
 }
 
 </style>
