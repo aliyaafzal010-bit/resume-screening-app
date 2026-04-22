@@ -105,7 +105,7 @@ def calculate_similarity(resume, jd):
     return cosine_similarity(vectors[0:1], vectors[1:2])[0][0]
 
 # -------------------------------
-# 🆕 NEW FUNCTION (SAFE ADDITION)
+# 🆕 NEW FUNCTION
 # -------------------------------
 def check_sections(text):
     text = text.lower()
@@ -135,7 +135,7 @@ if "page" not in st.session_state:
 # -------------------------------
 if st.session_state.page == "home":
 
-    st.title("💎 AI Resume Screening System")
+    st.title("💎 AI Resume Parser")
     st.markdown("### 🚀 Smart AI-powered Resume Analyzer")
 
     st.markdown("""
@@ -242,7 +242,7 @@ elif st.session_state.page == "analysis":
     if final_score > 0.7:
         st.success("💪 Your resume is strong!")
 
-    # 🆕 Resume Section Check UI (SAFE ADDITION)
+    # 🆕 Resume Section Check UI 
     st.markdown("### 📄 Resume Section Check")
 
     if missing_sections:
