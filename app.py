@@ -115,7 +115,7 @@ if "page" not in st.session_state:
 # -------------------------------
 if st.session_state.page == "home":
 
-    st.title("💎 AI Resume Screening System")
+    st.title("💎 AI Resume Parser")
     st.markdown("### 🚀 Smart AI-powered Resume Analyzer")
 
     st.markdown("""
