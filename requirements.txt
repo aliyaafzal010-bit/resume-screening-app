@@ -2,4 +2,4 @@ streamlit
 pdfplumber
 scikit-learn
 docx2txt
-
+matplotlib.pyplot
