@@ -12,7 +12,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 st.set_page_config(page_title="AI Resume Analyzer", layout="wide")
 
 # -------------------------------
-# GLASS UI FIXED CSS ✅
+# GLASS UI CSS
 # -------------------------------
 st.markdown("""
 <style>
@@ -33,7 +33,7 @@ body, p, span, div, label {
     backdrop-filter: blur(12px);
     border-radius: 16px;
     padding: 20px;
-    margin-bottom: 15px;   /* 🔥 FIXED SPACING */
+    margin-bottom: 15px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
@@ -105,6 +105,26 @@ def calculate_similarity(resume, jd):
     return cosine_similarity(vectors[0:1], vectors[1:2])[0][0]
 
 # -------------------------------
+# 🆕 NEW FUNCTION (SAFE ADDITION)
+# -------------------------------
+def check_sections(text):
+    text = text.lower()
+
+    sections = {
+        "Education": ["education", "degree", "university", "college"],
+        "Projects": ["project", "projects"],
+        "Experience": ["experience", "internship", "work"]
+    }
+
+    missing = []
+
+    for section, keywords in sections.items():
+        if not any(keyword in text for keyword in keywords):
+            missing.append(section)
+
+    return missing
+
+# -------------------------------
 # SESSION STATE
 # -------------------------------
 if "page" not in st.session_state:
@@ -115,7 +135,7 @@ if "page" not in st.session_state:
 # -------------------------------
 if st.session_state.page == "home":
 
-    st.title("💎 AI Resume Parser")
+    st.title("💎 AI Resume Screening System")
     st.markdown("### 🚀 Smart AI-powered Resume Analyzer")
 
     st.markdown("""
@@ -163,7 +183,10 @@ elif st.session_state.page == "analysis":
     skill_score = len(set(skills) & set(jd_skills)) / max(len(jd_skills),1)
     final_score = (0.7 * similarity) + (0.3 * skill_score)
 
-    # 🔹 Extracted Info (Grouped Card)
+    # 🆕 SECTION CHECK (SAFE)
+    missing_sections = check_sections(text)
+
+    # Extracted Info
     st.markdown("### 📌 Extracted Information")
     st.markdown(f"""
     <div class='glass'>
@@ -173,7 +196,7 @@ elif st.session_state.page == "analysis":
     </div>
     """, unsafe_allow_html=True)
 
-    # 🔹 Scores (Side by Side)
+    # Scores
     st.markdown("### 📈 Analysis Scores")
 
     col1, col2, col3 = st.columns(3)
@@ -189,7 +212,7 @@ elif st.session_state.page == "analysis":
 
     st.progress(float(final_score))
 
-    # 🔹 Decision
+    # Decision
     st.markdown("### 🎯 Final Decision")
 
     if final_score > 0.7:
@@ -199,7 +222,7 @@ elif st.session_state.page == "analysis":
     else:
         st.error("❌ Poor Match - Improve Skills")
 
-    # 🔹 Suggestions
+    # Suggestions
     st.markdown("### 🤖 Suggestions")
 
     missing_skills = list(set(jd_skills) - set(skills))
@@ -218,6 +241,19 @@ elif st.session_state.page == "analysis":
 
     if final_score > 0.7:
         st.success("💪 Your resume is strong!")
+
+    # 🆕 Resume Section Check UI (SAFE ADDITION)
+    st.markdown("### 📄 Resume Section Check")
+
+    if missing_sections:
+        st.markdown(f"""
+        <div class='glass'>
+        ⚠️ <b>Missing Sections:</b> {missing_sections}<br><br>
+        💡 Add these sections to make your resume stronger
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("<div class='glass'>✅ All important sections are present</div>", unsafe_allow_html=True)
 
     # Back button
     if st.button("⬅️ Back to Home"):
