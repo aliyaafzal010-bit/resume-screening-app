@@ -1,5 +1,4 @@
 streamlit
 pdfplumber
 scikit-learn
-spacy==3.7.2
 docx2txt
