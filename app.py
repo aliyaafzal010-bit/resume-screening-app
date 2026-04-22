@@ -2,23 +2,12 @@ import streamlit as st
 import pdfplumber
 import docx2txt
 import re
-import spacy
-import os
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # -------------------------------
-# spaCy MODEL LOAD (AUTO DOWNLOAD FIX)
-# -------------------------------
-try:
-    nlp = spacy.load("en_core_web_sm")
-except:
-    os.system("python -m spacy download en_core_web_sm")
-    nlp = spacy.load("en_core_web_sm")
-
-# -------------------------------
-# Extract Text from Resume
+# Extract Text
 # -------------------------------
 def extract_text(file):
     text = ""
@@ -45,7 +34,7 @@ def extract_phone(text):
 
 
 # -------------------------------
-# Extract Skills
+# Skills
 # -------------------------------
 skills_db = [
     "python","java","sql","machine learning","ai",
@@ -54,75 +43,46 @@ skills_db = [
 
 def extract_skills(text):
     text = text.lower()
-    found_skills = []
-    
-    for skill in skills_db:
-        if skill in text:
-            found_skills.append(skill)
-    
-    return list(set(found_skills))
+    return [skill for skill in skills_db if skill in text]
 
 
 # -------------------------------
-# Similarity Calculation (AI PART)
+# Similarity
 # -------------------------------
 def calculate_similarity(resume, jd):
     tfidf = TfidfVectorizer()
     vectors = tfidf.fit_transform([resume, jd])
-    score = cosine_similarity(vectors[0:1], vectors[1:2])
-    return score[0][0]
+    return cosine_similarity(vectors[0:1], vectors[1:2])[0][0]
 
 
 # -------------------------------
-# STREAMLIT UI
+# UI
 # -------------------------------
-st.set_page_config(page_title="AI Resume Screener", layout="centered")
-
 st.title("📄 AI Resume Screening System")
-st.write("Upload your resume and compare it with a job description")
 
 uploaded_file = st.file_uploader("Upload Resume", type=["pdf", "docx"])
 job_description = st.text_area("Enter Job Description")
 
 if st.button("Analyze Resume"):
     
-    if uploaded_file is not None and job_description.strip() != "":
+    if uploaded_file and job_description:
         
-        # Extract text
         text = extract_text(uploaded_file)
         
-        # Extract details
         email = extract_email(text)
         phone = extract_phone(text)
         skills = extract_skills(text)
         
-        # Similarity score
         similarity = calculate_similarity(text, job_description)
         
-        # Skill matching score
         jd_skills = extract_skills(job_description)
-        skill_score = len(set(skills) & set(jd_skills)) / max(len(jd_skills), 1)
+        skill_score = len(set(skills) & set(jd_skills)) / max(len(jd_skills),1)
         
-        # Final score
         final_score = (0.7 * similarity) + (0.3 * skill_score)
         
-        # -------------------------------
-        # OUTPUT
-        # -------------------------------
-        st.subheader("🔍 Results")
+        st.write("Email:", email)
+        st.write("Phone:", phone)
+        st.write("Skills:", skills)
         
-        st.write("📧 Email:", email)
-        st.write("📱 Phone:", phone)
-        st.write("🧠 Skills:", skills)
-        
-        st.write("📊 Similarity Score:", round(similarity, 2))
-        st.write("🧩 Skill Match Score:", round(skill_score, 2))
-        st.write("⭐ Final Score:", round(final_score, 2))
-        
-        if final_score > 0.6:
-            st.success("✅ Strong Candidate")
-        else:
-            st.error("❌ Not a Good Match")
-    
-    else:
-        st.warning("⚠️ Please upload resume and enter job description")
+        st.write("Similarity:", round(similarity,2))
+        st.write("Final Score:", round(final_score,2))
