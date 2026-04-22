@@ -12,25 +12,46 @@ from sklearn.metrics.pairwise import cosine_similarity
 st.set_page_config(page_title="AI Resume Analyzer", layout="wide")
 
 # -------------------------------
-# CUSTOM CSS (PRO UI 🔥)
+# COLORFUL UI CSS (FIXED)
 # -------------------------------
 st.markdown("""
 <style>
-body {
-    background: linear-gradient(to right, #6a11cb, #2575fc);
+
+/* Background Gradient */
+.stApp {
+    background: linear-gradient(to right, #dbeafe, #dcfce7);
 }
-.main {
-    background-color: #f9f9f9;
-    padding: 20px;
-    border-radius: 15px;
+
+/* Text Fix */
+body, p, div {
+    color: black !important;
 }
+
+/* Card Style */
 .card {
-    background: white;
+    background: #ffffff;
+    color: black !important;
     padding: 15px;
     border-radius: 12px;
-    box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
     margin-bottom: 10px;
+    font-size: 16px;
 }
+
+/* Headings */
+h1, h2, h3 {
+    color: #1e293b !important;
+}
+
+/* Button */
+.stButton>button {
+    background-color: #2563eb;
+    color: white;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: bold;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -79,11 +100,9 @@ if "page" not in st.session_state:
 if st.session_state.page == "home":
 
     st.title("🚀 AI Resume Screening System")
-    st.markdown("### ✨ Smart AI Tool for Resume Analysis")
+    st.markdown("### ✨ Smart Resume Analyzer using AI")
 
     st.write("""
-    This application helps HR teams and recruiters analyze resumes automatically.
-    
     🔹 Upload your resume  
     🔹 Enter job description  
     🔹 Get AI-based match score  
@@ -94,7 +113,6 @@ if st.session_state.page == "home":
     job_description = st.text_area("📝 Enter Job Description")
 
     if st.button("➡️ Analyze Resume"):
-
         if uploaded_file and job_description:
 
             text = extract_text(uploaded_file)
@@ -132,44 +150,47 @@ elif st.session_state.page == "analysis":
     final_score = (0.7 * similarity) + (0.3 * skill_score)
 
     # -------------------------------
-    # DISPLAY DATA
+    # OUTPUT
     # -------------------------------
-    st.markdown("### 📌 Extracted Information")
+    st.subheader("📌 Extracted Information")
 
     st.markdown(f"<div class='card'>📧 Email: {email}</div>", unsafe_allow_html=True)
     st.markdown(f"<div class='card'>📱 Phone: {phone}</div>", unsafe_allow_html=True)
     st.markdown(f"<div class='card'>🧠 Skills: {skills}</div>", unsafe_allow_html=True)
 
-    st.markdown("### 📈 Analysis Scores")
+    st.subheader("📈 Analysis Scores")
 
     st.markdown(f"<div class='card'>📊 Similarity Score: {round(similarity,2)}</div>", unsafe_allow_html=True)
     st.markdown(f"<div class='card'>🧩 Skill Match: {round(skill_score,2)}</div>", unsafe_allow_html=True)
     st.markdown(f"<div class='card'>⭐ Final Score: {round(final_score,2)}</div>", unsafe_allow_html=True)
 
+    # Progress Bar
+    st.progress(float(final_score))
+
     # -------------------------------
-    # RESULT DECISION
+    # FINAL DECISION
     # -------------------------------
-    st.markdown("### 🎯 Final Decision")
+    st.subheader("🎯 Final Decision")
 
     if final_score > 0.7:
-        st.success("✅ Excellent Match - Candidate is highly suitable!")
+        st.success("✅ Excellent Match - Highly Suitable Candidate")
     elif final_score > 0.5:
-        st.warning("⚠️ Moderate Match - Candidate can improve")
+        st.warning("⚠️ Moderate Match - Needs Improvement")
     else:
-        st.error("❌ Poor Match - Needs significant improvement")
+        st.error("❌ Poor Match - Improve Skills")
 
     # -------------------------------
-    # IMPROVEMENT SUGGESTIONS
+    # SUGGESTIONS
     # -------------------------------
-    st.markdown("### 💡 Improvement Suggestions")
+    st.subheader("💡 Improvement Suggestions")
 
     missing_skills = list(set(jd_skills) - set(skills))
 
     if missing_skills:
-        st.write("🔧 Add these skills to improve your resume:")
+        st.write("🔧 Add these skills:")
         st.write(missing_skills)
     else:
-        st.write("🎉 Your resume matches well with the job!")
+        st.success("🎉 Your resume matches well!")
 
     # Back button
     if st.button("⬅️ Back to Home"):
