@@ -1,141 +1,223 @@
 import streamlit as st
-import PyPDF2
+import pdfplumber
+import docx2txt
 import re
-import pandas as pd
 
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+# -------------------------------
+# PAGE CONFIG
+# -------------------------------
 st.set_page_config(page_title="AI Resume Analyzer", layout="wide")
 
-# ---------------------------
-# TITLE
-# ---------------------------
-st.title("📄 AI Resume Analyzer")
-st.markdown("Upload your resume and get ATS score, skill match, and suggestions.")
+# -------------------------------
+# MODERN UI CSS 🔥
+# -------------------------------
+st.markdown("""
+<style>
 
-# ---------------------------
-# FILE UPLOAD
-# ---------------------------
-uploaded_file = st.file_uploader("Upload Resume (PDF only)", type=["pdf"])
+/* Background */
+.stApp {
+    background: linear-gradient(135deg, #dbeafe, #dcfce7);
+    font-family: 'Segoe UI', sans-serif;
+}
 
-# ---------------------------
-# JOB DESCRIPTION
-# ---------------------------
-jd = st.text_area("Paste Job Description here")
+/* Center container */
+.main-container {
+    max-width: 800px;
+    margin: auto;
+    padding-top: 30px;
+}
 
-# ---------------------------
-# SAMPLE SKILLS LIST
-# ---------------------------
-skills_list = [
-    "python", "java", "c++", "html", "css", "javascript",
-    "sql", "machine learning", "data analysis", "react",
-    "node.js", "mongodb", "git", "excel"
+/* Card UI */
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+}
+
+/* Input fields fix */
+input, textarea {
+    background-color: white !important;
+    color: black !important;
+    border-radius: 8px !important;
+}
+
+/* File uploader fix */
+[data-testid="stFileUploader"] {
+    background-color: #ffffff !important;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+/* Text area fix */
+[data-testid="stTextArea"] textarea {
+    background-color: white !important;
+    color: black !important;
+}
+
+/* Button */
+.stButton>button {
+    width: 100%;
+    background: linear-gradient(to right, #2563eb, #22c55e);
+    color: white;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+}
+
+/* Title */
+.title {
+    text-align: center;
+    font-size: 36px;
+    font-weight: bold;
+    color: #1e293b;
+}
+
+.subtitle {
+    text-align: center;
+    color: #475569;
+    margin-bottom: 20px;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# -------------------------------
+# FUNCTIONS
+# -------------------------------
+def extract_text(file):
+    text = ""
+    if file.name.endswith(".pdf"):
+        with pdfplumber.open(file) as pdf:
+            for page in pdf.pages:
+                text += page.extract_text() or ""
+    elif file.name.endswith(".docx"):
+        text = docx2txt.process(file)
+    return text
+
+def extract_email(text):
+    return re.findall(r'\S+@\S+', text)
+
+def extract_phone(text):
+    return re.findall(r'\b\d{10}\b', text)
+
+skills_db = [
+    "python","java","sql","machine learning","ai",
+    "data science","deep learning","html","css","javascript"
 ]
 
-# ---------------------------
-# FUNCTION: EXTRACT TEXT
-# ---------------------------
-def extract_text(pdf_file):
-    reader = PyPDF2.PdfReader(pdf_file)
-    text = ""
-    for page in reader.pages:
-        text += page.extract_text()
-    return text.lower()
-
-# ---------------------------
-# FUNCTION: EXTRACT EMAIL
-# ---------------------------
-def extract_email(text):
-    match = re.findall(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}", text)
-    return match[0] if match else "Not Found"
-
-# ---------------------------
-# FUNCTION: EXTRACT SKILLS
-# ---------------------------
 def extract_skills(text):
-    found_skills = []
-    for skill in skills_list:
-        if skill in text:
-            found_skills.append(skill)
-    return found_skills
+    text = text.lower()
+    return [skill for skill in skills_db if skill in text]
 
-# ---------------------------
-# MAIN LOGIC
-# ---------------------------
-if uploaded_file is not None:
+def calculate_similarity(resume, jd):
+    tfidf = TfidfVectorizer()
+    vectors = tfidf.fit_transform([resume, jd])
+    return cosine_similarity(vectors[0:1], vectors[1:2])[0][0]
 
-    text = extract_text(uploaded_file)
+# -------------------------------
+# SESSION STATE
+# -------------------------------
+if "page" not in st.session_state:
+    st.session_state.page = "home"
 
-    st.subheader("📊 Extracted Information")
+# -------------------------------
+# HOME PAGE
+# -------------------------------
+if st.session_state.page == "home":
 
-    col1, col2 = st.columns(2)
+    st.markdown("<div class='main-container'>", unsafe_allow_html=True)
 
-    with col1:
-        email = extract_email(text)
-        st.write(f"📧 Email: {email}")
+    st.markdown("<div class='title'>💎 AI Resume Analyzer</div>", unsafe_allow_html=True)
+    st.markdown("<div class='subtitle'>Smart AI-powered Resume Screening System</div>", unsafe_allow_html=True)
 
-    with col2:
-        skills = extract_skills(text)
-        st.write(f"🛠 Skills: {', '.join(skills) if skills else 'None'}")
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
 
-    # ---------------------------
-    # MATCHING WITH JD
-    # ---------------------------
-    if jd:
-        jd = jd.lower()
+    uploaded_file = st.file_uploader("📄 Upload Resume", type=["pdf","docx"])
+    job_description = st.text_area("📝 Paste Job Description")
 
-        matched = []
-        missing = []
+    if st.button("🔍 Analyze Resume"):
+        if uploaded_file and job_description:
 
-        for skill in skills_list:
-            if skill in jd and skill in skills:
-                matched.append(skill)
-            elif skill in jd and skill not in skills:
-                missing.append(skill)
+            text = extract_text(uploaded_file)
 
-        # SCORE CALCULATION
-        if len(jd) > 0:
-            score = int((len(matched) / (len(matched) + len(missing) + 1)) * 100)
+            st.session_state.data = {
+                "text": text,
+                "jd": job_description
+            }
+
+            st.session_state.page = "analysis"
+            st.rerun()
         else:
-            score = 0
+            st.warning("⚠️ Please upload resume and enter job description")
 
-        st.subheader("📈 ATS Score")
-        st.progress(score)
-        st.write(f"### {score}% Match")
+    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
-        # ---------------------------
-        # SKILL DISPLAY
-        # ---------------------------
-        st.subheader("✅ Matched Skills")
-        st.write(matched if matched else "No matches")
+# -------------------------------
+# ANALYSIS PAGE
+# -------------------------------
+elif st.session_state.page == "analysis":
 
-        st.subheader("❌ Missing Skills")
-        st.write(missing if missing else "None")
+    st.markdown("<div class='main-container'>", unsafe_allow_html=True)
 
-        # ---------------------------
-        # GRAPH
-        # ---------------------------
-        st.subheader("📊 Skill Match Graph")
+    st.markdown("<div class='title'>📊 Resume Analysis</div>", unsafe_allow_html=True)
 
-        data = pd.DataFrame({
-            "Category": ["Matched", "Missing"],
-            "Count": [len(matched), len(missing)]
-        })
+    text = st.session_state.data["text"]
+    jd = st.session_state.data["jd"]
 
-        st.bar_chart(data.set_index("Category"))
+    email = extract_email(text)
+    phone = extract_phone(text)
+    skills = extract_skills(text)
 
-        # ---------------------------
-        # SUGGESTIONS
-        # ---------------------------
-        st.subheader("💡 Suggestions")
+    similarity = calculate_similarity(text, jd)
 
-        if score < 40:
-            st.error("Your resume needs improvement. Add relevant skills and keywords.")
-        elif score < 70:
-            st.warning("Good resume, but can be improved by adding missing skills.")
-        else:
-            st.success("Great! Your resume is well optimized.")
+    jd_skills = extract_skills(jd)
+    skill_score = len(set(skills) & set(jd_skills)) / max(len(jd_skills),1)
 
-        if missing:
-            st.write("👉 Try adding these skills:", ", ".join(missing))
+    final_score = (0.7 * similarity) + (0.3 * skill_score)
 
+    # Info
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.write("📧 Email:", email)
+    st.write("📱 Phone:", phone)
+    st.write("🧠 Skills:", skills)
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # Scores
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.write("📊 Similarity Score:", round(similarity,2))
+    st.write("🧩 Skill Match:", round(skill_score,2))
+    st.write("⭐ Final Score:", round(final_score,2))
+    st.progress(float(final_score))
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    # Decision
+    if final_score > 0.7:
+        st.success("✅ Excellent Match")
+    elif final_score > 0.5:
+        st.warning("⚠️ Moderate Match")
     else:
-        st.info("Paste a Job Description to get ATS score.")
+        st.error("❌ Poor Match")
+
+    # Suggestions
+    missing_skills = list(set(jd_skills) - set(skills))
+
+    if missing_skills:
+        st.markdown("<div class='card'>", unsafe_allow_html=True)
+        st.write("🔧 Missing Skills:", ", ".join(missing_skills))
+        st.markdown("</div>", unsafe_allow_html=True)
+    else:
+        st.success("🎉 Your resume matches well!")
+
+    if st.button("⬅️ Back"):
+        st.session_state.page = "home"
+        st.rerun()
+
+    st.markdown("</div>", unsafe_allow_html=True)
