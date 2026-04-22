@@ -1,5 +1,5 @@
 streamlit
 pdfplumber
-scikit-learn
 docx2txt
-matplotlib.pyplot
+scikit-learn
+matplotlib
