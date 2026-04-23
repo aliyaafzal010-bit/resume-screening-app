@@ -136,26 +136,15 @@ if "page" not in st.session_state:
 if st.session_state.page == "home":
 
     # 🔥 NEW ATTRACTIVE HEADING (ONLY CHANGE)
-    st.markdown("""
-    <h1 style='
-        text-align: center;
-        font-size: 48px;
-        font-weight: 800;
-        background: linear-gradient(to right, #4f46e5, #22c55e);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    '>
-    📊 AI Resume Analyzer
-    </h1>
-    """, unsafe_allow_html=True)
+st.markdown("<h1 style='text-align:center;font-size: 52px;'>📊 AI Resume Parser</h1>", unsafe_allow_html=True)
 
     st.markdown("""
     <p style='
         text-align: center;
-        font-size: 18px;
+        font-size: 22px;
         color: #374151;
     '>
-    Analyze • Score • Improve your Resume
+    " 🚀 Smart AI-powered Resume Screening System "
     </p>
     """, unsafe_allow_html=True)
 
