@@ -150,7 +150,8 @@ if st.session_state.page == "home":
             for file in uploaded_files:
                 text = extract_text(file)
                 score = calculate_similarity(text, job_description)
-                results.append((file.name, text, score))
+                name = extract_name(text)
+                results.append((name, text, score))
 
             # 🔥 RANKING
             results.sort(key=lambda x: x[2], reverse=True)
