@@ -180,7 +180,7 @@ elif st.session_state.page == "analysis":
 
     for i, (name, _, score) in enumerate(results):
         tag = "✅ Selected" if score == top_score else "📄 Consider"
-        st.markdown(f"<div class='glass'>#{i+1} {name} → {round(score,2)} | {tag}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='glass'>#{i+1} {name} → {round(score*100,2)}%</div>", unsafe_allow_html=True)
     # TOP RESUME
     text = results[0][1]
 
@@ -219,14 +219,14 @@ elif st.session_state.page == "analysis":
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.markdown(f"<div class='glass'>📊 Similarity<br><h3>{round(similarity,2)}</h3></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='glass'>📊 Similarity<br><h3>{round(similarity*100,2)}%</h3></div>", unsafe_allow_html=True)
 
     with col2:
-        st.markdown(f"<div class='glass'>🧩 Skill Match<br><h3>{round(skill_score,2)}</h3></div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='glass'>🧩 Skill Match<br><h3>{round(skill_score*100,2)}%</h3></div>", unsafe_allow_html=True)
 
     with col3:
-        st.markdown(f"<div class='glass'>⭐ Final Score<br><h3>{round(final_score,2)}</h3></div>", unsafe_allow_html=True)
-
+        st.markdown(f"<div class='glass'>⭐ Final Score<br><h3>{round(final_score*100,2)}%</h3></div>", unsafe_allow_html=True)
+        
     st.progress(float(final_score))
 
     # DECISION
