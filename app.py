@@ -209,14 +209,14 @@ elif st.session_state.page == "analysis":
     jd_skills = extract_skills(jd)
 
     skill_score = len(set(skills) & set(jd_skills)) / max(len(jd_skills),1)
-    
+
+    missing_sections = check_sections(text)
+
     experience_score = calculate_experience_score(text)
     section_score = calculate_section_score(missing_sections)
 
     final_score = ( 0.4 * skill_score + 0.3 * similarity + 0.2 * experience_score + 0.1 * section_score )
-
-    missing_sections = check_sections(text)
-
+    
     # STRUCTURED INFO
     st.markdown("### 📌 Extracted Information")
     st.markdown(f"""
