@@ -177,7 +177,7 @@ elif st.session_state.page == "analysis":
     # 🔥 RANKING DISPLAY
     st.markdown("### 🏆 Candidate Ranking")
     for i, (name, _, score) in enumerate(results):
-    tag = "✅ Selected" if i == 0 else "📄 Consider"
+        tag = "✅ Selected" if i == 0 else "📄 Consider"
     st.markdown(f"<div class='glass'>#{i+1} {name} → {round(score,2)} | {tag}</div>", unsafe_allow_html=True)
     # TOP RESUME
     text = results[0][1]
