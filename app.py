@@ -127,7 +127,7 @@ if st.session_state.page == "home":
 
     st.markdown("""
     <p style='text-align: center;font-size: 22px;color: #374151;'>
-    " 🚀 Smart AI-powered Resume Screening System "
+    " 🚀 Smart AI-powered Resume Screening System Designed to Enhance HR Decision-Making "
     </p>
     """, unsafe_allow_html=True)
 
@@ -177,8 +177,8 @@ elif st.session_state.page == "analysis":
     # 🔥 RANKING DISPLAY
     st.markdown("### 🏆 Candidate Ranking")
     for i, (name, _, score) in enumerate(results):
-        st.markdown(f"<div class='glass'>#{i+1} {name} → {round(score,2)}</div>", unsafe_allow_html=True)
-
+    tag = "✅ Selected" if i == 0 else "📄 Consider"
+    st.markdown(f"<div class='glass'>#{i+1} {name} → {round(score,2)} | {tag}</div>", unsafe_allow_html=True)
     # TOP RESUME
     text = results[0][1]
 
