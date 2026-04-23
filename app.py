@@ -153,7 +153,6 @@ if st.session_state.page == "home":
                 score = calculate_similarity(text, job_description)
                 name = extract_name(text)
                 results.append((name, text, score))
-                results.sort(key=lambda x: x[2], reverse=True)
 
             # 🔥 RANKING
             results.sort(key=lambda x: x[2], reverse=True)
