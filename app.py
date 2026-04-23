@@ -175,25 +175,24 @@ elif st.session_state.page == "analysis":
     jd = st.session_state.jd
 
     # 🔥 RANKING DISPLAY
-st.markdown("### 🏆 Candidate Ranking")
+    st.markdown("### 🏆 Candidate Ranking")
 
-top_score = results[0][2]  # highest score
+    top_score = results[0][2]
 
-for i, (name, _, score) in enumerate(results):
+    for i, (name, _, score) in enumerate(results):
 
-    # tolerance check (important 🔥)
-    if abs(score - top_score) < 0.0001:
-        if score > 0.6:
-            tag = "✅ Selected"
+        if abs(score - top_score) < 0.0001:
+            if score > 0.6:
+                tag = "✅ Selected"
+            else:
+                tag = "⚠️ Top Candidate (Low Match)"
         else:
-            tag = "⚠️ Top Candidate (Low Match)"
-    else:
-        tag = "📄 Consider"
+            tag = "📄 Consider"
 
-    st.markdown(
-        f"<div class='glass'>#{i+1} {name} → {round(score*100,2)}% | {tag}</div>",
-        unsafe_allow_html=True
-    )
+        st.markdown(
+            f"<div class='glass'>#{i+1} {name} → {round(score*100,2)}% | {tag}</div>",
+            unsafe_allow_html=True
+        )
     
     # TOP RESUME
     text = results[0][1]
