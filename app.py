@@ -105,7 +105,7 @@ def calculate_similarity(resume, jd):
     return cosine_similarity(vectors[0:1], vectors[1:2])[0][0]
 
 # -------------------------------
-# 🆕 NEW FUNCTION
+# NEW FUNCTION (SECTION CHECK)
 # -------------------------------
 def check_sections(text):
     text = text.lower()
@@ -135,8 +135,29 @@ if "page" not in st.session_state:
 # -------------------------------
 if st.session_state.page == "home":
 
-    st.title("💎 AI Resume Parser")
-    st.markdown("### 🚀 Smart AI-powered Resume Analyzer")
+    # 🔥 NEW ATTRACTIVE HEADING (ONLY CHANGE)
+    st.markdown("""
+    <h1 style='
+        text-align: center;
+        font-size: 48px;
+        font-weight: 800;
+        background: linear-gradient(to right, #4f46e5, #22c55e);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    '>
+    📊 AI Resume Analyzer
+    </h1>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <p style='
+        text-align: center;
+        font-size: 18px;
+        color: #374151;
+    '>
+    Analyze • Score • Improve your Resume
+    </p>
+    """, unsafe_allow_html=True)
 
     st.markdown("""
     <div class="glass">
@@ -183,7 +204,6 @@ elif st.session_state.page == "analysis":
     skill_score = len(set(skills) & set(jd_skills)) / max(len(jd_skills),1)
     final_score = (0.7 * similarity) + (0.3 * skill_score)
 
-    # 🆕 SECTION CHECK (SAFE)
     missing_sections = check_sections(text)
 
     # Extracted Info
@@ -242,7 +262,7 @@ elif st.session_state.page == "analysis":
     if final_score > 0.7:
         st.success("💪 Your resume is strong!")
 
-    # 🆕 Resume Section Check UI 
+    # Resume Section Check
     st.markdown("### 📄 Resume Section Check")
 
     if missing_sections:
