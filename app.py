@@ -135,8 +135,8 @@ if "page" not in st.session_state:
 # -------------------------------
 if st.session_state.page == "home":
 
-    # 🔥 NEW ATTRACTIVE HEADING (ONLY CHANGE)
-st.markdown("<h1 style='text-align:center;font-size: 52px;'>📊 AI Resume Parser</h1>", unsafe_allow_html=True)
+    # 🔥 ATTRACTIVE HEADING
+    st.markdown("<h1 style='text-align:center;font-size: 52px;'>📊 AI Resume Parser</h1>", unsafe_allow_html=True)
 
     st.markdown("""
     <p style='
