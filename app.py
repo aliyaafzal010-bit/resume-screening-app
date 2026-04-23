@@ -16,7 +16,7 @@ st.set_page_config(page_title="AI Resume Analyzer", layout="wide")
 # -------------------------------
 st.markdown("""<style>
 .stApp {background: linear-gradient(135deg, #eef2ff, #d1fae5);}
-body, p, span, div, label {color: #1f2937 !important;}
+body, p, span, label {color: #1f2937 !important;}
 .glass {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(12px);
@@ -29,6 +29,7 @@ input, textarea {
     background-color: white !important;
     color: black !important;
     border-radius: 10px !important;
+    caret-color: black !important;
 }
 [data-testid="stFileUploader"] {
     background: linear-gradient(135deg, #1e293b, #334155);
