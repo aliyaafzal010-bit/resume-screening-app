@@ -153,6 +153,7 @@ if st.session_state.page == "home":
                 score = calculate_similarity(text, job_description)
                 name = extract_name(text)
                 results.append((name, text, score))
+                results.sort(key=lambda x: x[2], reverse=True)
 
             # 🔥 RANKING
             results.sort(key=lambda x: x[2], reverse=True)
@@ -175,12 +176,26 @@ elif st.session_state.page == "analysis":
     jd = st.session_state.jd
 
     # 🔥 RANKING DISPLAY
-    st.markdown("### 🏆 Candidate Ranking")
-    top_score = results[0][2]
+st.markdown("### 🏆 Candidate Ranking")
 
-    for i, (name, _, score) in enumerate(results):
-        tag = "✅ Selected" if score == top_score else "📄 Consider"
-        st.markdown(f"<div class='glass'>#{i+1} {name} → {round(score*100,2)}%</div>", unsafe_allow_html=True)
+top_score = results[0][2]  # highest score
+
+for i, (name, _, score) in enumerate(results):
+
+    # tolerance check (important 🔥)
+    if abs(score - top_score) < 0.0001:
+        if score > 0.6:
+            tag = "✅ Selected"
+        else:
+            tag = "⚠️ Top Candidate (Low Match)"
+    else:
+        tag = "📄 Consider"
+
+    st.markdown(
+        f"<div class='glass'>#{i+1} {name} → {round(score*100,2)}% | {tag}</div>",
+        unsafe_allow_html=True
+    )
+    
     # TOP RESUME
     text = results[0][1]
 
