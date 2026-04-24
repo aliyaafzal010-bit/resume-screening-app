@@ -157,25 +157,46 @@ if st.session_state.page == "home":
     job_description = st.text_area("📝 Enter Job Description")
 
     if st.button("🔍 Analyze Resume"):
-        if uploaded_files and job_description:
-            results = []
+    if uploaded_files and job_description:
+        results = []
 
-            for file in uploaded_files:
-                text = extract_text(file)
-                score = calculate_similarity(text, job_description)
-                name = extract_name(text)
-                results.append((name, text, score))
+        for file in uploaded_files:
+            text = extract_text(file)
 
-            # 🔥 RANKING
-            results.sort(key=lambda x: x[2], reverse=True)
+            name = extract_name(text)
 
-            st.session_state.results = results
-            st.session_state.jd = job_description
-            st.session_state.page = "analysis"
-            st.rerun()
-        else:
-            st.warning("⚠️ Please upload resume and enter job description")
+            # 🔥 FULL HR SCORING
+            similarity = calculate_similarity(text, job_description)
 
+            jd_skills = extract_skills(job_description)
+            skills = extract_skills(text)
+
+            skill_score = len(set(skills) & set(jd_skills)) / max(len(jd_skills),1)
+
+            missing_sections = check_sections(text)
+            experience_score = calculate_experience_score(text)
+            section_score = calculate_section_score(missing_sections)
+
+            final_score = (
+                0.4 * skill_score +
+                0.3 * similarity +
+                0.2 * experience_score +
+                0.1 * section_score
+            )
+
+            # 🔥 STORE FINAL SCORE (IMPORTANT)
+            results.append((name, text, final_score))
+
+        # 🔥 SORT BY FINAL SCORE
+        results.sort(key=lambda x: x[2], reverse=True)
+
+        st.session_state.results = results
+        st.session_state.jd = job_description
+        st.session_state.page = "analysis"
+        st.rerun()
+
+    else:
+        st.warning("⚠️ Please upload resume and enter job description")
 # -------------------------------
 # ANALYSIS PAGE
 # -------------------------------
