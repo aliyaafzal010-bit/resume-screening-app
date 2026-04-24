@@ -156,46 +156,41 @@ if st.session_state.page == "home":
     uploaded_files = st.file_uploader("📄 Upload Resume(s)", type=["pdf","docx"], accept_multiple_files=True)
     job_description = st.text_area("📝 Enter Job Description")
 
-if st.button("🔍 Analyze Resume"):
-    if uploaded_files and job_description:
+    if st.button("🔍 Analyze Resume"):
+        if uploaded_files and job_description:
 
-        results = []
+             results = []
 
-        for file in uploaded_files:
-            text = extract_text(file)
-            name = extract_name(text)
+            for file in uploaded_files:
+                text = extract_text(file)
+                name = extract_name(text)
 
             # 🔥 SCORING
-            similarity = calculate_similarity(text, job_description)
+                similarity = calculate_similarity(text, job_description)
 
-            jd_skills = extract_skills(job_description)
-            skills = extract_skills(text)
+                jd_skills = extract_skills(job_description)
+                skills = extract_skills(text)
 
-            skill_score = len(set(skills) & set(jd_skills)) / max(len(jd_skills), 1)
+                skill_score = len(set(skills) & set(jd_skills)) / max(len(jd_skills), 1)
 
-            missing_sections = check_sections(text)
-            experience_score = calculate_experience_score(text)
-            section_score = calculate_section_score(missing_sections)
+                missing_sections = check_sections(text)
+                experience_score = calculate_experience_score(text)
+                section_score = calculate_section_score(missing_sections)
 
-            final_score = (
-                0.4 * skill_score +
-                0.3 * similarity +
-                0.2 * experience_score +
-                0.1 * section_score
-            )
+                final_score = ( 0.4 * skill_score + 0.3 * similarity +  0.2 * experience_score +  0.1 * section_score )
 
-            results.append((name, text, final_score))
+                results.append((name, text, final_score))
 
         # ✅ SORT
-        results.sort(key=lambda x: x[2], reverse=True)
+            results.sort(key=lambda x: x[2], reverse=True)
 
-        st.session_state.results = results
-        st.session_state.jd = job_description
-        st.session_state.page = "analysis"
-        st.rerun()
+            st.session_state.results = results
+            st.session_state.jd = job_description
+            st.session_state.page = "analysis"
+            st.rerun()
 
-    else:
-        st.warning("⚠️ Please upload resume and enter job description")
+        else:
+            st.warning("⚠️ Please upload resume and enter job description")
 # -------------------------------
 # ANALYSIS PAGE
 # -------------------------------
@@ -237,17 +232,15 @@ elif st.session_state.page == "analysis":
     education = extract_education(text)
     experience = extract_experience(text)
 
-    similarity = results[0][2]
-    jd_skills = extract_skills(jd)
+    final_score = results[0][2]
+    similarity = calculate_similarity(text, jd)
 
+    jd_skills = extract_skills(jd)
     skill_score = len(set(skills) & set(jd_skills)) / max(len(jd_skills),1)
 
     missing_sections = check_sections(text)
-
     experience_score = calculate_experience_score(text)
-    section_score = calculate_section_score(missing_sections)
-
-    final_score = ( 0.4 * skill_score + 0.3 * similarity + 0.2 * experience_score + 0.1 * section_score )
+    section_score = calculate_section_score(missing_sections) )
     
     # STRUCTURED INFO
     st.markdown("### 📌 Extracted Information")
