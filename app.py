@@ -239,7 +239,7 @@ elif st.session_state.page == "analysis":
 
     missing_sections = check_sections(text)
     experience_score = calculate_experience_score(text)
-    section_score = calculate_section_score(missing_sections) )
+    section_score = calculate_section_score(missing_sections) 
     
     # STRUCTURED INFO
     st.markdown("### 📌 Extracted Information")
