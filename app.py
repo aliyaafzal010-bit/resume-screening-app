@@ -159,7 +159,7 @@ if st.session_state.page == "home":
     if st.button("🔍 Analyze Resume"):
         if uploaded_files and job_description:
 
-             results = []
+            results = []
 
             for file in uploaded_files:
                 text = extract_text(file)
@@ -181,7 +181,6 @@ if st.session_state.page == "home":
 
                 results.append((name, text, final_score))
 
-        # ✅ SORT
             results.sort(key=lambda x: x[2], reverse=True)
 
             st.session_state.results = results
