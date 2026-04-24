@@ -68,7 +68,7 @@ def extract_email(text):
 def extract_phone(text):
     return re.findall(r'\b\d{10}\b', text)
 
-# 🔥 IMPROVED SKILLS DB (LIGHTWEIGHT)
+# 🔥 IMPROVED SKILLS DB 
 skills_db = [
     "python","java","sql","machine learning","ai","data science",
     "deep learning","html","css","javascript","react","nodejs",
@@ -79,7 +79,7 @@ def extract_skills(text):
     text = text.lower()
     return [skill for skill in skills_db if skill in text]
 
-# 🔥 LIGHTWEIGHT SIMILARITY (SAFE)
+# 🔥 LIGHTWEIGHT SIMILARITY 
 def calculate_similarity(resume, jd):
     tfidf = TfidfVectorizer()
     vectors = tfidf.fit_transform([resume, jd])
@@ -111,6 +111,18 @@ def check_sections(text):
         if not any(keyword in text for keyword in keywords):
             missing.append(section)
     return missing
+# 🔥 EXPERIENCE SCORE (HR-like)
+def calculate_experience_score(text):
+    keywords = ["internship", "project", "experience", "worked"]
+    count = sum(1 for k in keywords if k in text.lower())
+    return min(count / len(keywords), 1)
+
+
+# 🔥 SECTION QUALITY SCORE
+def calculate_section_score(missing_sections):
+    total = 3  # Education, Projects, Experience
+    present = total - len(missing_sections)
+    return present / total
 
 # -------------------------------
 # SESSION STATE
