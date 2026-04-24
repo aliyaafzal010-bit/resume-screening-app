@@ -158,7 +158,7 @@ if st.session_state.page == "home":
 
     if st.button("🔍 Analyze Resume"):
         if uploaded_files and job_description:
-        results = []
+            results = []
 
         for file in uploaded_files:
             text = extract_text(file)
