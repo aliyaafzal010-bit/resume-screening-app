@@ -156,16 +156,16 @@ if st.session_state.page == "home":
     uploaded_files = st.file_uploader("📄 Upload Resume(s)", type=["pdf","docx"], accept_multiple_files=True)
     job_description = st.text_area("📝 Enter Job Description")
 
-    if st.button("🔍 Analyze Resume"):
-        if uploaded_files and job_description:
-            results = []
+ if st.button("🔍 Analyze Resume"):
+     if uploaded_files and job_description:
+
+        results = []
 
         for file in uploaded_files:
             text = extract_text(file)
-
             name = extract_name(text)
 
-            # 🔥 FULL HR SCORING
+            # 🔥 SCORING
             similarity = calculate_similarity(text, job_description)
 
             jd_skills = extract_skills(job_description)
@@ -184,10 +184,8 @@ if st.session_state.page == "home":
                 0.1 * section_score
             )
 
-            # 🔥 STORE FINAL SCORE (IMPORTANT)
             results.append((name, text, final_score))
 
-        # 🔥 SORT BY FINAL SCORE
         results.sort(key=lambda x: x[2], reverse=True)
 
         st.session_state.results = results
