@@ -156,8 +156,8 @@ if st.session_state.page == "home":
     uploaded_files = st.file_uploader("📄 Upload Resume(s)", type=["pdf","docx"], accept_multiple_files=True)
     job_description = st.text_area("📝 Enter Job Description")
 
- if st.button("🔍 Analyze Resume"):
-     if uploaded_files and job_description:
+if st.button("🔍 Analyze Resume"):
+    if uploaded_files and job_description:
 
         results = []
 
@@ -171,7 +171,7 @@ if st.session_state.page == "home":
             jd_skills = extract_skills(job_description)
             skills = extract_skills(text)
 
-            skill_score = len(set(skills) & set(jd_skills)) / max(len(jd_skills),1)
+            skill_score = len(set(skills) & set(jd_skills)) / max(len(jd_skills), 1)
 
             missing_sections = check_sections(text)
             experience_score = calculate_experience_score(text)
@@ -186,6 +186,7 @@ if st.session_state.page == "home":
 
             results.append((name, text, final_score))
 
+        # ✅ SORT
         results.sort(key=lambda x: x[2], reverse=True)
 
         st.session_state.results = results
