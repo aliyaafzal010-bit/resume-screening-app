@@ -157,7 +157,7 @@ if st.session_state.page == "home":
     job_description = st.text_area("📝 Enter Job Description")
 
     if st.button("🔍 Analyze Resume"):
-    if uploaded_files and job_description:
+        if uploaded_files and job_description:
         results = []
 
         for file in uploaded_files:
